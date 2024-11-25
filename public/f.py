@@ -1,6 +1,7 @@
-import warnings
-# Ignore all warnings
-warnings.filterwarnings("ignore")
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+
 import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image
@@ -39,6 +40,5 @@ if __name__ == '__main__':
     model_path = sys.argv[1]
     labels_path = sys.argv[2]
     image_path = sys.argv[3]
-    warnings.filterwarnings("ignore")
     result = run_inference(model_path, labels_path, image_path)
     print(result)
