@@ -1,6 +1,12 @@
+import os
 import logging
 
-logging.basicConfig(level=logging.WARNING)
+# Suppress TensorFlow Lite logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress INFO, WARNING, and ERROR logs from TensorFlow Lite
+import absl.logging
+absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
+
+# Disable logging at the INFO level
 logging.disable(logging.INFO)
 
 import sys
