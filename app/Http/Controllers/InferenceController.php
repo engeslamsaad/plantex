@@ -8,8 +8,9 @@ class InferenceController extends Controller
 {
     public function classify(Request $request)
     {
-        $request->validate([
-        ]);
+        
+        try {
+
 
         $validation = Validator::make($request->all(), [
             'image' => 'required|image',
@@ -60,5 +61,9 @@ class InferenceController extends Controller
             // Handle process opening error
             return response()->json(['error' => 'Failed to execute Python script'], 500);
         }
+                    //code...
+    } catch (\Throwable $th) {
+        dd($th);
+    }
     }
 }
