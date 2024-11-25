@@ -1,5 +1,10 @@
 import warnings
-warnings.filterwarnings('ignore')
+    
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
+set_verbose(False)
+set_debug(False)
 
 import sys
 import tflite_runtime.interpreter as tflite
