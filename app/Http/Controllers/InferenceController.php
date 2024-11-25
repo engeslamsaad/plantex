@@ -25,20 +25,12 @@ class InferenceController extends Controller
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
         
-        $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
+        $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath") . " 2>&1";
         $output = shell_exec($command);
 
-        
-        // if ($output === null) {
-        //     echo "Error: Failed to execute Python script.";
-        // } else {
-        //     echo "Command executed: $command<br>";
-        //     echo "Output: <pre>$output</pre>";
-        // }
-
-        // Return the result
         return response()->json([
-            'label' => trim($output),
+            'output' => $output, // Check the raw output
+            'label' => trim($output), // Return the processed output
         ]);
     }
 }
