@@ -1,7 +1,5 @@
-import os
-import absl.logging
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Suppress TensorFlow Lite logs
-absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
+import warnings
+warnings.filterwarnings('ignore')
 
 import sys
 import tflite_runtime.interpreter as tflite
