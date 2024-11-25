@@ -27,12 +27,12 @@ class InferenceController extends Controller
         $command = escapeshellcmd("python3 f.py $modelPath $labelsPath $imageFullPath 2>&1");
         $output = shell_exec($command);
         
-        if ($output === null) {
-            echo "Error: Failed to execute Python script.";
-        } else {
-            echo "Command executed: $command<br>";
-            echo "Output: <pre>$output</pre>";
-        }
+        // if ($output === null) {
+        //     echo "Error: Failed to execute Python script.";
+        // } else {
+        //     echo "Command executed: $command<br>";
+        //     echo "Output: <pre>$output</pre>";
+        // }
 
         // Return the result
         return response()->json([
