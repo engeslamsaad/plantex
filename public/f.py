@@ -1,7 +1,7 @@
 import logging
 
 logging.basicConfig(level=logging.WARNING)
-with logging.disable(logging.INFO):
+logging.disable(logging.INFO)
 
 import sys
 import tflite_runtime.interpreter as tflite
