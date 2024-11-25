@@ -1,18 +1,20 @@
 import os
 import logging
-
-# Suppress TensorFlow Lite logs
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress INFO, WARNING, and ERROR logs from TensorFlow Lite
-import absl.logging
-absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
-
-# Disable logging at the INFO level
-logging.disable(logging.INFO)
-
 import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image
 import numpy as np
+import absl.logging
+
+# Suppress TensorFlow Lite and absl logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress INFO, WARNING, and ERROR logs from TensorFlow Lite
+absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
+
+# Suppress Python logging globally
+logging.disable(logging.CRITICAL)
+
+# Redirect stderr to suppress unwanted logs
+sys.stderr = open(os.devnull, 'w')
 
 def load_labels(filename):
     with open(filename, 'r') as f:
@@ -44,8 +46,14 @@ def run_inference(model_path, labels_path, image_path):
     return labels[result]
 
 if __name__ == '__main__':
-    model_path = sys.argv[1]
-    labels_path = sys.argv[2]
-    image_path = sys.argv[3]
-    result = run_inference(model_path, labels_path, image_path)
-    print(result)
+    try:
+        model_path = sys.argv[1]
+        labels_path = sys.argv[2]
+        image_path = sys.argv[3]
+        result = run_inference(model_path, labels_path, image_path)
+
+        # Explicitly print only the result
+        print(result)
+        sys.stdout.flush()  # Ensure the output is flushed immediately
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
