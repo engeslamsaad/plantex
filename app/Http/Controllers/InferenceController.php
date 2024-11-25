@@ -8,9 +8,8 @@ class InferenceController extends Controller
 {
     public function classify(Request $request)
     {
-        
-        try {
-
+        $request->validate([
+        ]);
 
         $validation = Validator::make($request->all(), [
             'image' => 'required|image',
@@ -26,45 +25,23 @@ class InferenceController extends Controller
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
         
-        // $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
-        // $output = exec($command);
-        // return response()->json([
-        //     'label' => trim($output),
-        // ]);
+        $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
+        $output = shell_exec($command);
+        // echo "Error Logs: <pre>" . file_get_contents('/tmp/python_errors.log') . "</pre>";
+        $command = escapeshellcmd("which python3");
+        $pythonPath = shell_exec($command);
 
+        
+        // if ($output === null) {
+        //     echo "Error: Failed to execute Python script.";
+        // } else {
+        //     echo "Command executed: $command<br>";
+        //     echo "Output: <pre>$output</pre>";
+        // }
 
-        // **Changes to suppress output and extract "Grape__ww":**
-
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],  // Read standard output of the Python script
-            1 => ['pipe', 'w'],  // Not used, can be set to null
-            2 => ['pipe', 'w'],  // Not used, can be used to capture standard error
-        ];
-
-        $process = proc_open('python3 /var/www/plantex/public/f.py ' . escapeshellarg($modelPath) . ' ' . escapeshellarg($labelsPath) . ' ' . escapeshellarg($imageFullPath), $descriptorSpec, $pipes);
-
-        if (is_resource($process)) {
-            $output = stream_get_contents($pipes[0]);
-            fclose($pipes[0]);
-
-            $return_value = proc_close($process);
-
-            if ($return_value !== 0) {
-                // Handle Python script error
-                return response()->json(['error' => 'Python script failed with exit code: ' . $return_value], 500);
-            }
-
-            // Extract label
-            $label = trim(explode("\n", $output)[0]);
-
-            return response()->json(['label' => $label]);
-        } else {
-            // Handle process opening error
-            return response()->json(['error' => 'Failed to execute Python script'], 500);
-        }
-                    //code...
-    } catch (\Throwable $th) {
-        dd($th);
-    }
+        // Return the result
+        return response()->json([
+            'label' => trim($pythonPath),
+        ]);
     }
 }
