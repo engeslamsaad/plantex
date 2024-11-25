@@ -4,26 +4,30 @@ import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image
 import numpy as np
-import absl.logging
 
-# Suppress TensorFlow logs
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress INFO, WARNING, and ERROR logs from TensorFlow Lite
-absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
+# Advanced log suppression
+# Suppress TensorFlow Lite logs via environment variables
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# Suppress Python logging globally
-logging.disable(logging.CRITICAL)
+# Suppress unwanted TensorFlow or library logs by redirecting stderr
+class SuppressStderr:
+    def __enter__(self):
+        self.stderr = sys.stderr
+        sys.stderr = open(os.devnull, 'w')
 
-# Redirect stderr to suppress unwanted logs
-sys.stderr = open(os.devnull, 'w')
+    def __exit__(self, exc_type, exc_value, traceback):
+        sys.stderr.close()
+        sys.stderr = self.stderr
 
 def load_labels(filename):
     with open(filename, 'r') as f:
         return [line.strip() for line in f.readlines()]
 
 def run_inference(model_path, labels_path, image_path):
-    # Load the TFLite model
-    interpreter = tflite.Interpreter(model_path=model_path)
-    interpreter.allocate_tensors()
+    # Use SuppressStderr to suppress logs during model loading
+    with SuppressStderr():
+        interpreter = tflite.Interpreter(model_path=model_path)
+        interpreter.allocate_tensors()
 
     # Load the labels
     labels = load_labels(labels_path)
@@ -37,8 +41,9 @@ def run_inference(model_path, labels_path, image_path):
     input_data = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
 
     # Run inference
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    interpreter.invoke()
+    with SuppressStderr():  # Suppress logs during inference
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+        interpreter.invoke()
 
     # Get results
     output_data = interpreter.get_tensor(output_details[0]['index'])
@@ -47,9 +52,6 @@ def run_inference(model_path, labels_path, image_path):
 
 if __name__ == '__main__':
     try:
-        # Restore stderr temporarily to see errors in exception handling
-        sys.stderr = sys.__stderr__
-        
         model_path = sys.argv[1]
         labels_path = sys.argv[2]
         image_path = sys.argv[3]
@@ -57,9 +59,5 @@ if __name__ == '__main__':
 
         # Explicitly print only the result
         print(result)
-        sys.stdout.flush()  # Ensure immediate output of result
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
-    finally:
-        # Redirect stderr back to suppress TensorFlow logs again
-        sys.stderr = open(os.devnull, 'w')
