@@ -49,13 +49,18 @@ if __name__ == '__main__':
         model_path = sys.argv[1]
         labels_path = sys.argv[2]
         image_path = sys.argv[3]
-        
-        # Capture all output and filter it
+
+        # Capture all output
         with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
             result = run_inference(model_path, labels_path, image_path)
             output = buf.getvalue()  # Capture all logs
 
-        # Print only the result
+        # Filter out unwanted lines (e.g., INFO messages)
+        filtered_output = [
+            line for line in output.splitlines() if not line.startswith("INFO:")
+        ]
+
+        # Print only the relevant result
         print(result)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
