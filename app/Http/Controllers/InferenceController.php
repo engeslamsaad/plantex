@@ -24,10 +24,12 @@ class InferenceController extends Controller
         $modelPath = public_path('mobilenetV1.tflite');
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
-        $command = escapeshellcmd("python  /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
-        $output = shell_exec("python  /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
+        
+        $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath 2> /tmp/python_errors.log");
+        $output = shell_exec($command);
         echo "Output: <pre>$output</pre>";
-
+        echo "Error Logs: <pre>" . file_get_contents('/tmp/python_errors.log') . "</pre>";
+        
 
         
         // if ($output === null) {
