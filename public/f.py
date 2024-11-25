@@ -39,5 +39,6 @@ if __name__ == '__main__':
     model_path = sys.argv[1]
     labels_path = sys.argv[2]
     image_path = sys.argv[3]
+    warnings.filterwarnings("ignore")
     result = run_inference(model_path, labels_path, image_path)
     print(result)
