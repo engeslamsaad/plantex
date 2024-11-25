@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow Lite logs
 import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image

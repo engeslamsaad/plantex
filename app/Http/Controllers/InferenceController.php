@@ -25,14 +25,7 @@ class InferenceController extends Controller
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
         $command = escapeshellcmd("python3 f.py $modelPath $labelsPath $imageFullPath 2>&1");
-        echo "Command: $command<br>";
-        $output = shell_exec($command);
-        
-        if ($output === null || $output === '') {
-            echo "Error: No output returned from the Python script.<br>";
-        } else {
-            echo "Output: <pre>$output</pre>";
-        }
+       
         
         // if ($output === null) {
         //     echo "Error: Failed to execute Python script.";
