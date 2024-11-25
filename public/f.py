@@ -1,13 +1,6 @@
 import warnings
-from langchain.text_splitter import NLTKTextSplitter
-from langchain_core.globals import set_verbose, set_debug
-
 # Ignore all warnings
 warnings.filterwarnings("ignore")
-
-set_verbose(False)
-set_debug(False)
-
 import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image
