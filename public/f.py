@@ -13,13 +13,27 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 # Suppress Python logging globally
 logging.disable(logging.CRITICAL)
 
+# Function to suppress all output (stdout and stderr)
+class SuppressOutput:
+    def __enter__(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        sys.stdout.close()
+        sys.stderr.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
+
 def load_labels(filename):
     with open(filename, 'r') as f:
         return [line.strip() for line in f.readlines()]
 
 def run_inference(model_path, labels_path, image_path):
-    # Capture and suppress unwanted logs during model initialization
-    with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
+    # Suppress logs during model initialization
+    with SuppressOutput():
         interpreter = tflite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
 
@@ -34,8 +48,8 @@ def run_inference(model_path, labels_path, image_path):
     img = img.resize((target_size[1], target_size[0]))
     input_data = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
 
-    # Capture and suppress unwanted logs during inference
-    with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
+    # Suppress logs during inference
+    with SuppressOutput():
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
 
@@ -49,22 +63,9 @@ if __name__ == '__main__':
         model_path = sys.argv[1]
         labels_path = sys.argv[2]
         image_path = sys.argv[3]
+        result = run_inference(model_path, labels_path, image_path)
 
-        # Capture all output
-        with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
-            result = run_inference(model_path, labels_path, image_path)
-            output = buf.getvalue()  # Capture all logs
-
-        # Filter out unwanted lines (e.g., INFO messages)
-        filtered_output = [
-            line for line in output.splitlines() if not line.startswith("INFO:")
-        ]
-
-        # Print only the relevant result
-        # print(filtered_output)
-        # print("///////////////////")
-        # print(output)
-        # print("///////////////////")
-        # print(result)
+        # Print the final result
+        print(result)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
