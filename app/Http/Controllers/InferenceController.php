@@ -24,7 +24,7 @@ class InferenceController extends Controller
         $modelPath = public_path('mobilenetV1.tflite');
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
-        $command = escapeshellcmd("python3 f.py $modelPath $labelsPath $imageFullPath 2>&1");
+        $command = escapeshellcmd("python f.py $modelPath $labelsPath $imageFullPath 2>&1");
         $output = shell_exec($command);
         
         // if ($output === null) {
