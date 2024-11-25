@@ -25,7 +25,7 @@ class InferenceController extends Controller
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
         
-        $command = escapeshellcmd("/root/tensorflow_env/bin/python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath") . " 2>&1";
+        $command = escapeshellcmd("python3 /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath") . " 2>&1";
         $output = shell_exec($command);
 
         return response()->json([
