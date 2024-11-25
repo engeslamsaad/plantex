@@ -25,7 +25,7 @@ class InferenceController extends Controller
         $labelsPath = public_path('labels.txt');
         $imageFullPath = public_path("storage/$imagePath");
         $command = escapeshellcmd("python  /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
-        $output = shell_exec($command);
+        $output = shell_exec("python  /var/www/plantex/public/f.py $modelPath $labelsPath $imageFullPath");
         echo "Output: <pre>$output</pre>";
 
 
