@@ -61,6 +61,10 @@ if __name__ == '__main__':
         ]
 
         # Print only the relevant result
+        print(filtered_output)
+        print("///////////////////")
+        print(output)
+        print("///////////////////")
         print(result)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
