@@ -4,28 +4,22 @@ import sys
 import tflite_runtime.interpreter as tflite
 from PIL import Image
 import numpy as np
+from contextlib import redirect_stdout, redirect_stderr
+from io import StringIO
 
-# Advanced log suppression
 # Suppress TensorFlow Lite logs via environment variables
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# Suppress unwanted TensorFlow or library logs by redirecting stderr
-class SuppressStderr:
-    def __enter__(self):
-        self.stderr = sys.stderr
-        sys.stderr = open(os.devnull, 'w')
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        sys.stderr.close()
-        sys.stderr = self.stderr
+# Suppress Python logging globally
+logging.disable(logging.CRITICAL)
 
 def load_labels(filename):
     with open(filename, 'r') as f:
         return [line.strip() for line in f.readlines()]
 
 def run_inference(model_path, labels_path, image_path):
-    # Use SuppressStderr to suppress logs during model loading
-    with SuppressStderr():
+    # Capture and suppress unwanted logs during model initialization
+    with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
         interpreter = tflite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
 
@@ -40,8 +34,8 @@ def run_inference(model_path, labels_path, image_path):
     img = img.resize((target_size[1], target_size[0]))
     input_data = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
 
-    # Run inference
-    with SuppressStderr():  # Suppress logs during inference
+    # Capture and suppress unwanted logs during inference
+    with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
 
@@ -55,9 +49,13 @@ if __name__ == '__main__':
         model_path = sys.argv[1]
         labels_path = sys.argv[2]
         image_path = sys.argv[3]
-        result = run_inference(model_path, labels_path, image_path)
+        
+        # Capture all output and filter it
+        with StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
+            result = run_inference(model_path, labels_path, image_path)
+            output = buf.getvalue()  # Capture all logs
 
-        # Explicitly print only the result
+        # Print only the result
         print(result)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
