@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 import absl.logging
 
-# Suppress TensorFlow Lite and absl logs
+# Suppress TensorFlow logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress INFO, WARNING, and ERROR logs from TensorFlow Lite
 absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress absl logs
 
@@ -47,6 +47,9 @@ def run_inference(model_path, labels_path, image_path):
 
 if __name__ == '__main__':
     try:
+        # Restore stderr temporarily to see errors in exception handling
+        sys.stderr = sys.__stderr__
+        
         model_path = sys.argv[1]
         labels_path = sys.argv[2]
         image_path = sys.argv[3]
@@ -54,6 +57,9 @@ if __name__ == '__main__':
 
         # Explicitly print only the result
         print(result)
-        sys.stdout.flush()  # Ensure the output is flushed immediately
+        sys.stdout.flush()  # Ensure immediate output of result
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
+    finally:
+        # Redirect stderr back to suppress TensorFlow logs again
+        sys.stderr = open(os.devnull, 'w')
