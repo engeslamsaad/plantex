@@ -19,3 +19,4 @@ use App\Http\Controllers\InferenceController;
 //     return $request->user();
 // });
 Route::post('classify', [InferenceController::class, 'classify']);
+Route::post('classify-yolov', [InferenceController::class, 'classify_yolov']);
