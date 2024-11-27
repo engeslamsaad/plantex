@@ -44,7 +44,6 @@ def run_inference(model_path, labels_path, image_path):
 
     output_data = interpreter.get_tensor(output_details[0]['index'])
     result = np.argmax(output_data)
-    print (result)
     return labels[result]
 
 if __name__ == '__main__':
